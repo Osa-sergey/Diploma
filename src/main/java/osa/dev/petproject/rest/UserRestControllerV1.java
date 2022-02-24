@@ -1,5 +1,6 @@
 package osa.dev.petproject.rest;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import osa.dev.petproject.models.User;
 
@@ -17,11 +18,13 @@ public class UserRestControllerV1 {
     ).collect(Collectors.toList());
 
     @GetMapping
+    @PreAuthorize("hasAuthority('users:read')")
     public List<User> getAll(){
         return users;
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('users:read')")
     public User getById(@PathVariable Long id){
         return users.stream().filter(user -> user.getId().equals(id))
                 .findFirst()
@@ -29,11 +32,13 @@ public class UserRestControllerV1 {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('users:write')")
     public void add(@RequestBody User user){
         users.add(user);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('users:write')")
     public void deleteById(@PathVariable Long id){
         users.removeIf(user -> user.getId().equals(id));
     }
