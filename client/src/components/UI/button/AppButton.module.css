@@ -1,0 +1,8 @@
+.appBtn {
+    padding: 8px;
+    color: red;
+    font-size: 14px;
+    background: transparent;
+    border: 1px solid red;
+    cursor: pointer;
+}

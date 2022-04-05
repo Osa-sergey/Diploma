@@ -1,5 +1,6 @@
 import React from 'react';
 import IPost from "../interfaces/IPost";
+import AppButton from "./UI/button/AppButton";
 
 const PostItem = (item: IPost) => {
     return (
@@ -13,7 +14,7 @@ const PostItem = (item: IPost) => {
                 </div>
             </div>
             <div className="post_button">
-                <button>Delete</button>
+                <AppButton>Delete</AppButton>
             </div>
         </div>
     );
