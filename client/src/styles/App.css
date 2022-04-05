@@ -1,0 +1,23 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+#root {
+    display: flex;
+}
+
+.post_list_header {
+    text-align: center;
+}
+
+.post {
+    display: flex;
+    padding: 8px;
+    border: 2px solid green;
+    margin-top: 16px;
+    justify-content: space-between;
+    align-items: center;
+    width: 800px;
+}
