@@ -7,7 +7,7 @@ const PostItem = (item: IPost) => {
         <div className="post">
             <div className="post_content">
                 <h1>
-                    <strong>{item.post.title}</strong>
+                    <strong className="header_text">{item.post.title}</strong>
                 </h1>
                 <div>
                     <h3>{item.post.body}</h3>
