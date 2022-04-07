@@ -1,8 +1,9 @@
 import React from 'react';
-import IPostList from "../interfaces/IPostList";
 import PostItem from "./PostItem";
+import postItem from "./PostItem";
+import IPost from "../interfaces/IPost";
 
-const PostList = ({postList, name}: IPostList) => {
+const PostList = ({postList, name }: any) => {
     return (
         <div className="post_list">
             <div className="post_list_header">
@@ -10,8 +11,8 @@ const PostList = ({postList, name}: IPostList) => {
             </div>
             <button className="post_list_add_btn">Add post</button>
             {
-                postList.map((post) =>
-                    <PostItem post={post.post} key={post.post.id}/>
+                postList.map((post: IPost) =>
+                    <PostItem post={post.post} key={post.post.id} remove={postItem}/>
                 )
             }
         </div>

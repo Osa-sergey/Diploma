@@ -11,7 +11,7 @@ const PostItem = (item: IPost) => {
                 <h3><b>Дата оптимизации:</b> {item.post.date}</h3>
                 <h3><b>Статус:</b> {item.post.status}</h3>
             </div>
-            <button className="post_button">Delete</button>
+            <button onClick={() => item.remove(item)} className="post_button">Delete</button>
         </div>
     );
 };
