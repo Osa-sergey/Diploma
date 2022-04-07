@@ -19,10 +19,10 @@ body {
 }
 
 .post {
+    position: relative;
     display: flex;
     margin-top: 16px;
     padding: 8px;
-    justify-content: space-between;
     align-items: center;
     border-radius: 16px;
     background: linear-gradient(45deg, #38555e, #406068);
@@ -39,12 +39,27 @@ body {
     box-shadow: 6px 4px 5px rgba(102, 111, 112, 0.2);
 }
 
-.header_text {
-    width: 400px;
+.post_button {
+    position: absolute;
+    right: 0;
+    padding-right: 8px;
+}
+
+.post_content {
+    width: 70%;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
-    -webkit-line-clamp: 1;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.header_text {
+    color: #d5b19f;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
 }
 
@@ -60,17 +75,13 @@ body {
     width: 35%;
 }
 
-.header_text {
-    color: #d5b19f;
-}
-
 .post_list_add_btn {
     margin-top: 16px;
 }
 
 .viewer {
     position: absolute;
-    background: red;
+    background: linear-gradient(45deg, #38555e, #406068);
     width: 60%;
     height: 90%;
     top: 5%;
