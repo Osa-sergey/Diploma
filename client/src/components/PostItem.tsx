@@ -8,9 +8,8 @@ const PostItem = (item: IPost) => {
                 <h1>
                     <strong className="header_text">{item.post.title}</strong>
                 </h1>
-                <div>
-                    <h3>{item.post.body}</h3>
-                </div>
+                <h3><b>Дата оптимизации:</b> {item.post.date}</h3>
+                <h3><b>Статус:</b> {item.post.status}</h3>
             </div>
             <button className="post_button">Delete</button>
         </div>

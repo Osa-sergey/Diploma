@@ -4,13 +4,12 @@ import PostList from "./components/PostList";
 
 function App() {
     const [posts, setPosts] = useState([
-        {post:{id: 1, title: "Первый пост", body: "пока что просто текст поста"}},
-        {post:{id: 2, title: "Первый пост", body: "пока что просто текст поста"}},
-        {post:{id: 1, title: "Первый пост", body: "пока что просто текст поста"}},
-        {post:{id: 1, title: "Первый пост", body: "пока что просто текст поста"}},
-        {post:{id: 1, title: "Первый пост", body: "пока что просто текст поста"}},
-        {post:{id: 1, title: "Первый пост", body: "пока что просто текст поста"}},
-        {post:{id: 1, title: "Первый пост", body: "пока что просто текст поста"}}
+        {post:{id: 1, title: "Первый пост", date: "10.04.2000", status: "В процессе"}},
+        {post:{id: 1, title: "Первый пост", date: "10.04.2000", status: "В процессе"}},
+        {post:{id: 1, title: "Первый пост", date: "10.04.2000", status: "В процессе"}},
+        {post:{id: 1, title: "Первый пост", date: "10.04.2000", status: "В процессе"}},
+        {post:{id: 1, title: "Первый пост", date: "10.04.2000", status: "В процессе"}},
+        {post:{id: 1, title: "Первый пост", date: "10.04.2000", status: "В процессе"}}
     ])
   return (
     <div className="app">

@@ -1,7 +1,8 @@
 interface IPost {
     post:{
         title: string;
-        body: string;
+        date: string;
+        status: string;
         id: number
     }
 }
