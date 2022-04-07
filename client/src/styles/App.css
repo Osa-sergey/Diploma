@@ -42,7 +42,7 @@ body {
 .post_button {
     position: absolute;
     right: 0;
-    padding-right: 8px;
+    margin-right: 8px;
 }
 
 .post_content {
@@ -77,6 +77,7 @@ body {
 
 .post_list_add_btn {
     margin-top: 16px;
+    width: 100%;
 }
 
 .viewer {
@@ -88,4 +89,15 @@ body {
     bottom: 5%;
     right: 16px;
     z-index: -1;
+}
+
+button {
+    padding: 8px;
+    color: white;
+    font-size: 14px;
+    background: #e08b0a;
+    cursor: pointer;
+    border-radius: 8px;
+    text-transform: uppercase;
+    font-family: "Roboto", serif;
 }
