@@ -53,7 +53,8 @@ public class AuthenticationRestControllerV1 {
             AppUser user = repository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User doesn't exist"));
             String token = provider.createToken(email, user.getRole().name());
             Map<Object, Object> response = new HashMap<>();
-            response.put("email", email);
+            response.put("first_name", user.getFirstName());
+            response.put("last_name", user.getLastName());
             response.put("token", token);
 
             return ResponseEntity.ok(response);
