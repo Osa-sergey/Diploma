@@ -74,7 +74,7 @@ public class AuthenticationRestControllerV1 {
      *
      */
     @PostMapping("/signup")
-    @PreAuthorize("hasAuthority('users:create')")
+    @PreAuthorize("hasAuthority('users:create_users')")
     public ResponseEntity<?> createNewUser(@RequestBody NewAppUserRequestDTO dto){
         if(userRepository.findByEmail(dto.getEmail()).isPresent())
             return new ResponseEntity<>("User with this email already exists", HttpStatus.CONFLICT);
