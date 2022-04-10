@@ -30,17 +30,14 @@ import java.util.Map;
 public class AuthenticationRestControllerV1 {
 
     private final AuthenticationManager authenticationManager;
-    private final AppUserRepository repository;
     private final JwtTokenProvider provider;
     private final AppUserRepository userRepository;
 
     @Autowired
     public AuthenticationRestControllerV1(AuthenticationManager authenticationManager,
-                                          AppUserRepository repository,
                                           JwtTokenProvider provider,
                                           AppUserRepository userRepository) {
         this.authenticationManager = authenticationManager;
-        this.repository = repository;
         this.provider = provider;
         this.userRepository = userRepository;
     }
@@ -50,9 +47,10 @@ public class AuthenticationRestControllerV1 {
         try {
             String email = request.getEmail();
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, request.getPassword()));
-            AppUser user = repository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User doesn't exist"));
+            AppUser user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User doesn't exist"));
             String token = provider.createToken(email, user.getRole().name());
             Map<Object, Object> response = new HashMap<>();
+            response.put("user_id", user.getId());
             response.put("first_name", user.getFirstName());
             response.put("last_name", user.getLastName());
             response.put("token", token);
