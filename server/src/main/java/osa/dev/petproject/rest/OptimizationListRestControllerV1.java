@@ -1,6 +1,7 @@
 package osa.dev.petproject.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import osa.dev.petproject.dto.out.OptimizationDTO;
 import osa.dev.petproject.repository.OptimizationRepository;
@@ -20,6 +21,7 @@ public class OptimizationListRestControllerV1 {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('opt:read')")
     public List<OptimizationDTO> getOptimizationsById(@RequestParam(name = "user_id") Integer userId) {
         return optRepo.getAllOptByUserId(userId).stream()
                 .map(o -> new OptimizationDTO(o.getId(), o.getTitle(), o.getDate(), o.getStatus().name(),o.getBs_number()))
@@ -27,6 +29,7 @@ public class OptimizationListRestControllerV1 {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('opt:write')")
     public void deleteOptimizationById(@PathVariable Integer id) {
         optRepo.deleteById(id);
     }
