@@ -2,7 +2,7 @@ package osa.dev.petproject.security;
 
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import osa.dev.petproject.models.AppUser;
+import osa.dev.petproject.models.db.AppUser;
 import osa.dev.petproject.models.Status;
 
 public class SecurityUser{
