@@ -21,7 +21,7 @@ public class Optimization {
     @Column(name = "title")
     private String title;
 
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "create_date")
     private Date date;
 
