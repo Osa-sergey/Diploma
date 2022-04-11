@@ -1,6 +1,8 @@
-package osa.dev.petproject.models;
+package osa.dev.petproject.models.db;
 
 import lombok.Data;
+import osa.dev.petproject.models.Role;
+import osa.dev.petproject.models.Status;
 
 import javax.persistence.*;
 

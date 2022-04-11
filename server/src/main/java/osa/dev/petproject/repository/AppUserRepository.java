@@ -1,7 +1,7 @@
 package osa.dev.petproject.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import osa.dev.petproject.models.AppUser;
+import osa.dev.petproject.models.db.AppUser;
 
 import java.util.Optional;
 

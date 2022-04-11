@@ -1,4 +1,4 @@
-package osa.dev.petproject.dto;
+package osa.dev.petproject.dto.in;
 
 import lombok.Data;
 
