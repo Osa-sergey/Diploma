@@ -10,7 +10,7 @@ import java.util.List;
 public interface OptimizationRepository extends JpaRepository<Optimization, Integer> {
 
     @Query(value = "select o" +
-            " from Optimization as o, IN(o.user) as u" +
-            " where u.id = :user_id order by o.date desc")
+            " from Optimization as o" +
+            " where o.user_id = :user_id order by o.date desc")
     public List<Optimization> getAllOptByUserId(@Param("user_id") Integer user_id);
 }

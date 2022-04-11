@@ -15,9 +15,8 @@ public class Optimization {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
-    private AppUser user;
+    @Column(name = "user_id")
+    private Integer user_id;
 
     @Column(name = "title")
     private String title;
