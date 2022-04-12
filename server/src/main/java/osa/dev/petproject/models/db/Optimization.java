@@ -31,4 +31,10 @@ public class Optimization {
 
     @Column(name = "bs_number")
     private Integer bs_number;
+
+    @Column(name = "as_rad")
+    private Integer as_rad;
+
+    @Column(name = "bs_rad")
+    private Integer bs_rad;
 }
