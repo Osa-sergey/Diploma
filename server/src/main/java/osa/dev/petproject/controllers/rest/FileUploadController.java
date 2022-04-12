@@ -1,6 +1,7 @@
 package osa.dev.petproject.controllers;
 
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,6 +19,7 @@ public class FileUploadController {
 
     @PostMapping
     @RequestMapping(headers = ("content-type=multipart/*"), consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAuthority('opt:write')")
     public List<String> handleFileUpload(@RequestParam(name = "file") MultipartFile file) throws IOException {
         InputStream inputStream = file.getInputStream();
         List<String> input = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))
