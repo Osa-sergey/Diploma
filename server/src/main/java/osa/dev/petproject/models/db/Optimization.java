@@ -8,7 +8,7 @@ import java.util.Date;
 
 @Entity
 @Data
-@Table(name = "optimization", schema = "server_main")
+@Table(name = "optimizations", schema = "server_main")
 public class Optimization {
 
     @Id
@@ -37,4 +37,7 @@ public class Optimization {
 
     @Column(name = "bs_rad")
     private Integer bs_rad;
+
+    @Column(name = "road_map_id")
+    private Integer roadMapId;
 }
