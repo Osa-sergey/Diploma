@@ -6,9 +6,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import osa.dev.petproject.dto.in.NewPostRequestDTO;
+import osa.dev.petproject.exceptions.CheckException;
 import osa.dev.petproject.models.OptimizationStatus;
 import osa.dev.petproject.models.db.Optimization;
 import osa.dev.petproject.repository.OptimizationRepository;
+import osa.dev.petproject.services.OptimizationPostCheckService;
 
 import java.util.List;
 
@@ -17,10 +19,13 @@ import java.util.List;
 public class OptimizationListRestControllerV1 {
 
     private final OptimizationRepository optRepo;
+    private final OptimizationPostCheckService checkService;
 
     @Autowired
-    public OptimizationListRestControllerV1(OptimizationRepository optRepo){
+    public OptimizationListRestControllerV1(OptimizationRepository optRepo,
+                                            OptimizationPostCheckService checkService){
         this.optRepo = optRepo;
+        this.checkService = checkService;
     }
 
     @GetMapping
@@ -40,8 +45,11 @@ public class OptimizationListRestControllerV1 {
     @PostMapping
     @PreAuthorize("hasAuthority('opt:write')")
     public ResponseEntity<?> addOptimizationWithRoadmapId(@RequestBody NewPostRequestDTO dto){
-        if(optRepo.findByRoadmapId(dto.getRoadmapId()).isPresent())
-            return new ResponseEntity<>("Optimization with this file id already exists", HttpStatus.CONFLICT);
+        try {
+            checkService.checkOptimizationPostContent(dto);
+        } catch (CheckException e) {
+            return new ResponseEntity<>(e.getMessage(), e.getStatus());
+        }
         try {
             Optimization opt = new Optimization();
             opt.setTitle(dto.getTitle());
