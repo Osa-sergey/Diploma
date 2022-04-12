@@ -1,4 +1,4 @@
-package osa.dev.petproject.rest;
+package osa.dev.petproject.controllers.rest;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;

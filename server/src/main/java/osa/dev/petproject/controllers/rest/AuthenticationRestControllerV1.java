@@ -1,4 +1,4 @@
-package osa.dev.petproject.rest;
+package osa.dev.petproject.controllers.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
