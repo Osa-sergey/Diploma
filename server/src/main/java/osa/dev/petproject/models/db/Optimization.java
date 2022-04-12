@@ -1,6 +1,7 @@
 package osa.dev.petproject.models.db;
 
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
 import osa.dev.petproject.models.OptimizationStatus;
 
 import javax.persistence.*;
@@ -16,11 +17,12 @@ public class Optimization {
     private Integer id;
 
     @Column(name = "user_id")
-    private Integer user_id;
+    private Integer userId;
 
     @Column(name = "title")
     private String title;
 
+    @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "create_date")
     private Date date;
@@ -30,14 +32,14 @@ public class Optimization {
     private OptimizationStatus status;
 
     @Column(name = "bs_number")
-    private Integer bs_number;
+    private Integer bsNumber;
 
     @Column(name = "as_rad")
-    private Integer as_rad;
+    private Float asRad;
 
     @Column(name = "bs_rad")
-    private Integer bs_rad;
+    private Float bsRad;
 
-    @Column(name = "road_map_id")
-    private Integer roadMapId;
+    @Column(name = "roadmap_id")
+    private Integer roadmapId;
 }

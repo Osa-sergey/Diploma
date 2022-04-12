@@ -6,11 +6,14 @@ import org.springframework.data.repository.query.Param;
 import osa.dev.petproject.models.db.Optimization;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface OptimizationRepository extends JpaRepository<Optimization, Integer> {
 
     @Query(value = "select o" +
             " from Optimization as o" +
-            " where o.user_id = :user_id order by o.date desc")
-    public List<Optimization> getAllOptByUserId(@Param("user_id") Integer user_id);
+            " where o.userId = :user_id order by o.date desc")
+    List<Optimization> getAllOptByUserId(@Param("user_id") Integer user_id);
+
+    Optional<Optimization> findByRoadmapId(Integer id);
 }
