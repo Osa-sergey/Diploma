@@ -1,30 +1,41 @@
-package osa.dev.petproject.controllers;
+package osa.dev.petproject.controllers.rest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import osa.dev.petproject.models.db.Roadmap;
+import osa.dev.petproject.repository.RoadmapRepository;
+import osa.dev.petproject.services.JosmXmlOptimizationParserService;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/files")
 public class FileUploadController {
 
+    private final RoadmapRepository roadmapRepo;
+    private final JosmXmlOptimizationParserService parserService;
+
+    @Autowired
+    public FileUploadController(RoadmapRepository roadmapRepo,
+                                JosmXmlOptimizationParserService parserService) {
+        this.roadmapRepo = roadmapRepo;
+        this.parserService = parserService;
+    }
+
     @PostMapping
     @RequestMapping(headers = ("content-type=multipart/*"), consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAuthority('opt:write')")
-    public List<String> handleFileUpload(@RequestParam(name = "file") MultipartFile file) throws IOException {
+    public Integer handleFileUpload(@RequestParam(name = "file") MultipartFile file) throws IOException {
+        Roadmap roadmap = roadmapRepo.save(new Roadmap());
         InputStream inputStream = file.getInputStream();
-        List<String> input = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))
-                                .lines()
-                                .collect(Collectors.toList());
-        return input;
+        parserService.parse(inputStream, roadmap.getId());
+        return roadmap.getId();
     }
 }
