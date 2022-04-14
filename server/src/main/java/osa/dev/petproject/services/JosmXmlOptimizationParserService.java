@@ -11,6 +11,7 @@ import osa.dev.petproject.models.db.InputPoint;
 import osa.dev.petproject.models.db.RoadmapPoint;
 import osa.dev.petproject.repository.InputPointRepository;
 import osa.dev.petproject.repository.RoadmapPointRepository;
+import osa.dev.petproject.tools.DistHelper;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
@@ -139,6 +140,7 @@ public class JosmXmlOptimizationParserService {
     private void saveRoadmapPoints(List<Long> ids, Integer roadmapId, Map<Long, Coord> nodes) {
         int last = ids.size()-1;
         Coord coord;
+        Coord neibCoord;
         for (int j = 0; j < ids.size(); j++) {
             coord = nodes.get(ids.get(j));
             RoadmapPoint rp = new RoadmapPoint();
@@ -148,13 +150,18 @@ public class JosmXmlOptimizationParserService {
             rp.setPointId(ids.get(j));
             if(j == 0){
                 rp.setNeibPointId(ids.get(1));
+                neibCoord = nodes.get(ids.get(1));
+                rp.setDist(DistHelper.getDist(coord, neibCoord));
                 roadmapPointRepo.save(rp);
             } else if(j == last) {
                 rp.setNeibPointId(ids.get(last-1));
-                //TODO dist function
+                neibCoord = nodes.get(ids.get(last-1));
+                rp.setDist(DistHelper.getDist(coord, neibCoord));
                 roadmapPointRepo.save(rp);
             } else {
                 rp.setNeibPointId(ids.get(j+1));
+                neibCoord = nodes.get(ids.get(j+1));
+                rp.setDist(DistHelper.getDist(coord, neibCoord));
                 roadmapPointRepo.save(rp);
                 rp = new RoadmapPoint();
                 rp.setRoadmapId(roadmapId);
@@ -162,6 +169,8 @@ public class JosmXmlOptimizationParserService {
                 rp.setLon(coord.getLon());
                 rp.setPointId(ids.get(j));
                 rp.setNeibPointId(ids.get(j-1));
+                neibCoord = nodes.get(ids.get(j-1));
+                rp.setDist(DistHelper.getDist(coord, neibCoord));
                 roadmapPointRepo.save(rp);
             }
         }
