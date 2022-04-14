@@ -8,12 +8,12 @@ import osa.dev.petproject.exceptions.CheckException;
 import osa.dev.petproject.repository.OptimizationRepository;
 
 @Service
-public class OptimizationPostCheckService {
+public class PostCheckOptimizationService {
 
     private final OptimizationRepository optRepo;
 
     @Autowired
-    public OptimizationPostCheckService(OptimizationRepository optRepo){
+    public PostCheckOptimizationService(OptimizationRepository optRepo){
         this.optRepo = optRepo;
     }
 
