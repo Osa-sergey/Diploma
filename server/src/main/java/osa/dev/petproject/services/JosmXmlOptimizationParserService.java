@@ -9,9 +9,12 @@ import osa.dev.petproject.models.Coord;
 import osa.dev.petproject.models.InputPointType;
 import osa.dev.petproject.models.db.InputPoint;
 import osa.dev.petproject.models.db.RoadmapPoint;
+import osa.dev.petproject.models.db.RoadmapPointCoord;
 import osa.dev.petproject.repository.InputPointRepository;
+import osa.dev.petproject.repository.RoadmapPointCoordRepository;
 import osa.dev.petproject.repository.RoadmapPointRepository;
 import osa.dev.petproject.tools.DistHelper;
+import osa.dev.petproject.tools.Pair;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
@@ -22,11 +25,14 @@ public class JosmXmlOptimizationParserService {
 
     private final RoadmapPointRepository roadmapPointRepo;
     private final InputPointRepository inputPointRepo;
+    private final RoadmapPointCoordRepository roadmapPointCoordRepo;
     private final DocumentBuilderFactory factory;
 
     @Autowired
     public JosmXmlOptimizationParserService(RoadmapPointRepository roadmapPointRepo,
-                                            InputPointRepository inputPointRepo) {
+                                            InputPointRepository inputPointRepo,
+                                            RoadmapPointCoordRepository roadmapPointCoordRepo) {
+        this.roadmapPointCoordRepo = roadmapPointCoordRepo;
         factory = DocumentBuilderFactory.newInstance();
         this.roadmapPointRepo = roadmapPointRepo;
         this.inputPointRepo = inputPointRepo;
@@ -41,7 +47,87 @@ public class JosmXmlOptimizationParserService {
         }
 
         Map<Long, Coord> nodes = nodeParsing(doc, roadmapId);
+        InputPoint hb = inputPointRepo.findByRoadmapIdAndType(roadmapId, InputPointType.HOME_BASE).get(0);
+        Coord hbCoord = new Coord(hb.getLat(), hb.getLon());
         wayParsing(doc, roadmapId, nodes);
+        clearNodesFromInterestAreaPoints(roadmapId, nodes);
+        saveRoadmapPointCoords(roadmapId, nodes);
+        Pair<Long, Long> neibsForHb = DistHelper.getNeibsForHb(hbCoord, nodes);
+        addHBToRoadmapPoints(hb, neibsForHb, roadmapId);
+    }
+
+    private void clearNodesFromInterestAreaPoints(Integer roadmapId, Map<Long, Coord> nodes) {
+        for (InputPoint point: inputPointRepo.findByRoadmapIdAndType(roadmapId, InputPointType.INTEREST_AREA)) {
+            nodes.remove(point.getPointId());
+        }
+    }
+
+    private void saveRoadmapPointCoords(Integer roadmapId, Map<Long, Coord> nodes) {
+        for (Map.Entry<Long, Coord> entry : nodes.entrySet()) {
+            saveRoadmapPointCoord(entry.getKey(), entry.getValue().getLat(), entry.getValue().getLon(), roadmapId);
+        }
+    }
+
+    private void addHBToRoadmapPoints(InputPoint hb, Pair<Long, Long> neibsForHb, Integer roadmapId) {
+        RoadmapPoint p1 = roadmapPointRepo.
+                findRoadmapPointByPointIdAndNeibPointIdAndRoadmapId(neibsForHb.getFirst(), neibsForHb.getSecond(), hb.getRoadmapId());
+        RoadmapPoint p2 = roadmapPointRepo.
+                findRoadmapPointByPointIdAndNeibPointIdAndRoadmapId(neibsForHb.getSecond(), neibsForHb.getFirst(), hb.getRoadmapId());
+        RoadmapPointCoord p1Coord = roadmapPointCoordRepo.findRoadmapPointCoordByPointIdAndRoadmapId(neibsForHb.getFirst(), roadmapId);
+        RoadmapPointCoord p2Coord = roadmapPointCoordRepo.findRoadmapPointCoordByPointIdAndRoadmapId(neibsForHb.getSecond(), roadmapId);
+        if(p1 != null && p2 != null){
+           changeCurrentRelations(hb, p1);
+           changeCurrentRelations(hb, p2);
+        } else {
+
+            saveRelationFromRoadmapToHBPoint(p1Coord, hb, neibsForHb.getFirst());
+            saveRelationFromRoadmapToHBPoint(p2Coord, hb, neibsForHb.getSecond());
+        }
+        saveRoadmapPointCoord(hb.getPointId(), hb.getLat(), hb.getLon(), roadmapId);
+        saveRelationFromHBToRoadmapPoint(hb, p1Coord);
+        saveRelationFromHBToRoadmapPoint(hb, p2Coord);
+    }
+
+    private void changeCurrentRelations(InputPoint hb, RoadmapPoint roadmapPoint) {
+        RoadmapPointCoord coord = roadmapPointCoordRepo.findRoadmapPointCoordByPointIdAndRoadmapId(roadmapPoint.getPointId(), roadmapPoint.getRoadmapId());
+        roadmapPoint.setNeibPointId(hb.getPointId());
+        Coord hbCoord = new Coord(hb.getLat(), hb.getLon());
+        Coord rpCoord = new Coord(coord.getLat(), coord.getLon());
+        Double dist = DistHelper.getDist(rpCoord, hbCoord);
+        roadmapPoint.setDist(dist);
+        roadmapPointRepo.save(roadmapPoint);
+    }
+
+    private void saveRelationFromRoadmapToHBPoint(RoadmapPointCoord pCoord, InputPoint hb, Long pointId) {
+        RoadmapPoint p = new RoadmapPoint();
+        p.setRoadmapId(hb.getRoadmapId());
+        p.setPointId(pointId);
+        saveNeibAndDist(pCoord, hb, p, hb.getPointId());
+    }
+
+    private void saveRelationFromHBToRoadmapPoint(InputPoint hb, RoadmapPointCoord roadmapPointCoord) {
+        RoadmapPoint p = new RoadmapPoint();
+        p.setRoadmapId(hb.getRoadmapId());
+        p.setPointId(hb.getPointId());
+        saveNeibAndDist(roadmapPointCoord, hb, p, roadmapPointCoord.getPointId());
+    }
+
+    private void saveNeibAndDist(RoadmapPointCoord pCoord, InputPoint hb, RoadmapPoint p, Long pointId) {
+        p.setNeibPointId(pointId);
+        Coord hbCoord = new Coord(hb.getLat(), hb.getLon());
+        Coord rpCoord = new Coord(pCoord.getLat(), pCoord.getLon());
+        Double dist = DistHelper.getDist(rpCoord, hbCoord);
+        p.setDist(dist);
+        roadmapPointRepo.save(p);
+    }
+
+    private void saveRoadmapPointCoord(Long id, Double lat, Double lon, Integer roadmapId){
+        RoadmapPointCoord pointCoord = new RoadmapPointCoord();
+        pointCoord.setLat(lat);
+        pointCoord.setLon(lon);
+        pointCoord.setPointId(id);
+        pointCoord.setRoadmapId(roadmapId);
+        roadmapPointCoordRepo.save(pointCoord);
     }
 
     private Map<Long, Coord> nodeParsing(Document doc, Integer roadmapId) {
@@ -50,8 +136,7 @@ public class JosmXmlOptimizationParserService {
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
             if(node.hasChildNodes()) {
-                NodeList children = node.getChildNodes();
-                saveNodesWithChildren(node, children, roadmapId, nodes);
+                saveNodesWithChildren(node, roadmapId, nodes);
             } else {
                 saveNodeCoord(node, nodes);
             }
@@ -59,18 +144,20 @@ public class JosmXmlOptimizationParserService {
         return nodes;
     }
 
-    private void saveNodesWithChildren(Node node, NodeList children, Integer roadmapId, Map<Long, Coord> nodes) {
+    private void saveNodesWithChildren(Node node, Integer roadmapId, Map<Long, Coord> nodes) {
+        NodeList children = node.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
             if(nodeHasName(child, "tag") && nodeHasAttributeWithValue(child, "k", "штаб")) {
                 saveHQOrHomeBasePoint(node, roadmapId, InputPointType.HQ);
+                return;
             } else
             if(nodeHasName(child, "tag") && nodeHasAttributeWithValue(child, "k", "локация БС")) {
                 saveHQOrHomeBasePoint(node, roadmapId, InputPointType.HOME_BASE);
-            } else {
-                saveNodeCoord(node, nodes);
+                return;
             }
         }
+        saveNodeCoord(node, nodes);
     }
 
     private void saveHQOrHomeBasePoint(Node node, Integer roadmapId, InputPointType type) {
@@ -94,23 +181,21 @@ public class JosmXmlOptimizationParserService {
         NodeList wayList = doc.getElementsByTagName("way");
         for (int i = 0; i < wayList.getLength(); i++) {
             Node way = wayList.item(i);
-            if(way.hasChildNodes()) {
-                NodeList children = way.getChildNodes();
-                boolean isInterestArea = false;
-                List<Long> ids = new ArrayList<>();
-                for (int j = 0; j < children.getLength(); j++) {
-                    Node child = children.item(j);
-                    if(nodeHasName(child, "nd")) {
-                        ids.add(Long.valueOf(getAttributeValue(child, "ref")));
-                    } else if(nodeHasName(child, "tag") && nodeHasAttributeWithValue(child, "k", "зона интереса")) {
-                        isInterestArea = true;
-                    }
+            NodeList children = way.getChildNodes();
+            boolean isInterestArea = false;
+            List<Long> ids = new ArrayList<>();
+            for (int j = 0; j < children.getLength(); j++) {
+                Node child = children.item(j);
+                if(nodeHasName(child, "nd")) {
+                    ids.add(Long.valueOf(getAttributeValue(child, "ref")));
+                } else if(nodeHasName(child, "tag") && nodeHasAttributeWithValue(child, "k", "зона интереса")) {
+                    isInterestArea = true;
                 }
-                if(isInterestArea){
-                    saveInterestAreaPoints(ids, roadmapId, nodes);
-                }else {
-                    saveRoadmapPoints(ids, roadmapId, nodes);
-                }
+            }
+            if(isInterestArea){
+                saveInterestAreaPoints(ids, roadmapId, nodes);
+            }else {
+                saveRoadmapPoints(ids, roadmapId, nodes);
             }
         }
     }
@@ -145,8 +230,6 @@ public class JosmXmlOptimizationParserService {
             coord = nodes.get(ids.get(j));
             RoadmapPoint rp = new RoadmapPoint();
             rp.setRoadmapId(roadmapId);
-            rp.setLat(coord.getLat());
-            rp.setLon(coord.getLon());
             rp.setPointId(ids.get(j));
             if(j == 0){
                 rp.setNeibPointId(ids.get(1));
@@ -165,8 +248,6 @@ public class JosmXmlOptimizationParserService {
                 roadmapPointRepo.save(rp);
                 rp = new RoadmapPoint();
                 rp.setRoadmapId(roadmapId);
-                rp.setLat(coord.getLat());
-                rp.setLon(coord.getLon());
                 rp.setPointId(ids.get(j));
                 rp.setNeibPointId(ids.get(j-1));
                 neibCoord = nodes.get(ids.get(j-1));

@@ -10,7 +10,7 @@ import osa.dev.petproject.exceptions.CheckException;
 import osa.dev.petproject.models.OptimizationStatus;
 import osa.dev.petproject.models.db.Optimization;
 import osa.dev.petproject.repository.OptimizationRepository;
-import osa.dev.petproject.services.OptimizationPostCheckService;
+import osa.dev.petproject.services.PostCheckOptimizationService;
 
 import java.util.List;
 
@@ -19,11 +19,10 @@ import java.util.List;
 public class OptimizationListRestControllerV1 {
 
     private final OptimizationRepository optRepo;
-    private final OptimizationPostCheckService checkService;
-
+    private final PostCheckOptimizationService checkService;
     @Autowired
     public OptimizationListRestControllerV1(OptimizationRepository optRepo,
-                                            OptimizationPostCheckService checkService){
+                                            PostCheckOptimizationService checkService){
         this.optRepo = optRepo;
         this.checkService = checkService;
     }

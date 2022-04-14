@@ -2,6 +2,8 @@ package osa.dev.petproject.tools;
 
 import osa.dev.petproject.models.Coord;
 
+import java.util.Map;
+
 public class DistHelper {
 
     public static Double getDist(Coord coord1, Coord coord2) {
@@ -14,5 +16,19 @@ public class DistHelper {
 
     private static Double degToRad(Double deg) {
         return deg * Math.PI / 180;
+    }
+
+    public static Pair<Long, Long> getNeibsForHb(Coord hb, Map<Long, Coord> nodes) {
+        Long first = 0L, second = 0L;
+        Double dist = Double.MAX_VALUE, curDist;
+        for (Map.Entry<Long, Coord> entry : nodes.entrySet()) {
+            curDist = getDist(hb, entry.getValue());
+            if(dist > curDist){
+                dist = curDist;
+                second = first;
+                first = entry.getKey();
+            }
+        }
+        return new Pair<>(first, second);
     }
 }
