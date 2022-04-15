@@ -2,6 +2,7 @@ package osa.dev.petproject.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import osa.dev.petproject.models.AdjListElement;
 import osa.dev.petproject.models.InputPointType;
 import osa.dev.petproject.models.db.InputPoint;
 import osa.dev.petproject.models.db.Optimization;
@@ -29,7 +30,7 @@ public class PreprocOptimizationService {
     }
 
     public void preproc(Optimization opt) {
-        ArrayList<ArrayList<Pair<Long, Double>>> adjList = getRoadmapAdjList(opt.getRoadmapId());
+        ArrayList<AdjListElement> adjList = getRoadmapAdjList(opt.getRoadmapId());
         InputPoint hb = inputPointRepository.findByRoadmapIdAndType(opt.getRoadmapId(), InputPointType.HOME_BASE).get(0);
         Long hbId = hb.getPointId();
         //возвращает dist и path относительно порядка элементов в adjList
@@ -37,16 +38,16 @@ public class PreprocOptimizationService {
         System.out.println("");
     }
 
-    private ArrayList<ArrayList<Pair<Long, Double>>> getRoadmapAdjList(Integer roadmapId) {
-        ArrayList<ArrayList<Pair<Long, Double>>> res = new ArrayList<>();
+    private ArrayList<AdjListElement> getRoadmapAdjList(Integer roadmapId) {
+        ArrayList<AdjListElement> res = new ArrayList<>();
         ArrayList<Long> distinctPoints = roadmapPointRepository.getDistinctPointIds(roadmapId);
         for (Long point: distinctPoints) {
-            ArrayList<Pair<Long, Double>> line = new ArrayList<>();
-            line.add(new Pair<>(point, null));
+            AdjListElement item = new AdjListElement();
+            item.setElementId(point);
             for (RoadmapPoint p: roadmapPointRepository.findRoadmapPointByPointIdAndRoadmapId(point, roadmapId)) {
-                line.add(new Pair<>(p.getNeibPointId(), p.getDist()));
+                item.addAdjElement(new Pair<>(p.getNeibPointId(), p.getDist()));
             }
-            res.add(line);
+            res.add(item);
         }
         return res;
     }

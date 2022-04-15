@@ -1,6 +1,7 @@
 package osa.dev.petproject.services;
 
 import org.springframework.stereotype.Service;
+import osa.dev.petproject.models.AdjListElement;
 import osa.dev.petproject.tools.Pair;
 
 import java.util.ArrayList;
@@ -10,7 +11,7 @@ import java.util.Map;
 @Service
 public class DijkstraService {
 
-    public Pair<ArrayList<Double>, ArrayList<Integer>> dijkstraAlg(ArrayList<ArrayList<Pair<Long, Double>>> adjList, Long hbId) {
+    public Pair<ArrayList<Double>, ArrayList<Integer>> dijkstraAlg(ArrayList<AdjListElement> adjList, Long hbId) {
         ArrayList<Double> dist = new ArrayList<>();
         ArrayList<Integer> path = new ArrayList<>();
         ArrayList<Boolean> check = new ArrayList<>();
@@ -18,7 +19,7 @@ public class DijkstraService {
         int count = adjList.size();
         for ( int i = 0; i < count; i++) {
             check.add(false);
-            Long vert = adjList.get(i).get(0).getFirst();
+            Long vert = adjList.get(i).getElementId();
             map.put(vert, i);
             if(vert.equals(hbId)) {
                 dist.add(0.);
@@ -34,8 +35,8 @@ public class DijkstraService {
                 break;
             }
             check.set(curIndex, true);
-            ArrayList<Pair<Long, Double>> line = adjList.get(curIndex);
-            for(int j = 1; j < line.size(); j++) {
+            ArrayList<Pair<Long, Double>> line = adjList.get(curIndex).getAdjElements();
+            for(int j = 0; j < line.size(); j++) {
                 int index = map.get(line.get(j).getFirst());
                 double newDist = dist.get(curIndex) + line.get(j).getSecond();
                 if(!check.get(index) && dist.get(index) > newDist) {
