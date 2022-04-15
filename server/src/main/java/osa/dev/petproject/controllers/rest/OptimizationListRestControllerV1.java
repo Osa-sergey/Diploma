@@ -11,6 +11,7 @@ import osa.dev.petproject.models.OptimizationStatus;
 import osa.dev.petproject.models.db.Optimization;
 import osa.dev.petproject.repository.OptimizationRepository;
 import osa.dev.petproject.services.PostCheckOptimizationService;
+import osa.dev.petproject.services.PreprocOptimizationService;
 
 import java.util.List;
 
@@ -20,11 +21,14 @@ public class OptimizationListRestControllerV1 {
 
     private final OptimizationRepository optRepo;
     private final PostCheckOptimizationService checkService;
+    private final PreprocOptimizationService preprocService;
     @Autowired
     public OptimizationListRestControllerV1(OptimizationRepository optRepo,
-                                            PostCheckOptimizationService checkService){
+                                            PostCheckOptimizationService checkService,
+                                            PreprocOptimizationService preprocService){
         this.optRepo = optRepo;
         this.checkService = checkService;
+        this.preprocService = preprocService;
     }
 
     @GetMapping
@@ -58,6 +62,7 @@ public class OptimizationListRestControllerV1 {
             opt.setBsRad(dto.getBsRad());
             opt.setAsRad(dto.getAsRad());
             opt.setRoadmapId(dto.getRoadmapId());
+            preprocService.preproc(opt);
             optRepo.save(opt);
             return new ResponseEntity<>("Ok", HttpStatus.OK);
         } catch (Exception e) {
