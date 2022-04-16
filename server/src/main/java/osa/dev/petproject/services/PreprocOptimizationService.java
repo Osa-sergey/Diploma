@@ -21,26 +21,30 @@ public class PreprocOptimizationService {
     private final InputPointRepository inputPointRepository;
     private final DijkstraService dijkstraService;
     private final BackboneService backboneService;
+    private final RoadmapRegularNetService regularNetService;
 
     @Autowired
     public PreprocOptimizationService(RoadmapPointRepository roadmapPointRepository,
                                       InputPointRepository inputPointRepository,
                                       DijkstraService dijkstraService,
-                                      BackboneService backboneService) {
+                                      BackboneService backboneService,
+                                      RoadmapRegularNetService regularNetService) {
         this.roadmapPointRepository = roadmapPointRepository;
         this.inputPointRepository = inputPointRepository;
         this.dijkstraService = dijkstraService;
         this.backboneService = backboneService;
+        this.regularNetService = regularNetService;
     }
 
     public void preproc(Optimization opt) {
-        ArrayList<AdjListElement> adjList = getRoadmapAdjList(opt.getRoadmapId());
-        InputPoint hb = inputPointRepository.findByRoadmapIdAndType(opt.getRoadmapId(), InputPointType.HOME_BASE).get(0);
+        Integer roadmapId = opt.getRoadmapId();
+        ArrayList<AdjListElement> adjList = getRoadmapAdjList(roadmapId);
+        InputPoint hb = inputPointRepository.findByRoadmapIdAndType(roadmapId, InputPointType.HOME_BASE).get(0);
         Long hbId = hb.getPointId();
         //возвращает dist и path относительно порядка элементов в adjList
         Pair<ArrayList<Double>, ArrayList<Integer>> dijkstraRes = dijkstraService.dijkstraAlg(adjList, hbId);
         ArrayList<BackboneAdjListElement> backbone = backboneService.createBackbone(adjList, dijkstraRes);
-        System.out.println("");
+        regularNetService.createRegularNet(backbone, adjList, roadmapId);
     }
 
     private ArrayList<AdjListElement> getRoadmapAdjList(Integer roadmapId) {
