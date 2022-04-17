@@ -21,19 +21,22 @@ public class PreprocOptimizationService {
     private final InputPointRepository inputPointRepository;
     private final DijkstraService dijkstraService;
     private final BackboneService backboneService;
-    private final RoadmapRegularNetService regularNetService;
+    private final RoadmapRegularNetService roadmapRegularNetService;
+    private final InterestAreaRegularNetService areaRegularNetService;
 
     @Autowired
     public PreprocOptimizationService(RoadmapPointRepository roadmapPointRepository,
                                       InputPointRepository inputPointRepository,
                                       DijkstraService dijkstraService,
                                       BackboneService backboneService,
-                                      RoadmapRegularNetService regularNetService) {
+                                      RoadmapRegularNetService roadmapRegularNetService,
+                                      InterestAreaRegularNetService areaRegularNetService) {
         this.roadmapPointRepository = roadmapPointRepository;
         this.inputPointRepository = inputPointRepository;
         this.dijkstraService = dijkstraService;
         this.backboneService = backboneService;
-        this.regularNetService = regularNetService;
+        this.roadmapRegularNetService = roadmapRegularNetService;
+        this.areaRegularNetService = areaRegularNetService;
     }
 
     public void preproc(Optimization opt) {
@@ -44,7 +47,8 @@ public class PreprocOptimizationService {
         //возвращает dist и path относительно порядка элементов в adjList
         Pair<ArrayList<Double>, ArrayList<Integer>> dijkstraRes = dijkstraService.dijkstraAlg(adjList, hbId);
         ArrayList<BackboneAdjListElement> backbone = backboneService.createBackbone(adjList, dijkstraRes);
-        regularNetService.createRegularNet(backbone, adjList, roadmapId);
+        roadmapRegularNetService.createRegularNet(backbone, adjList, roadmapId);
+        areaRegularNetService.createRegularNet(roadmapId);
     }
 
     private ArrayList<AdjListElement> getRoadmapAdjList(Integer roadmapId) {
