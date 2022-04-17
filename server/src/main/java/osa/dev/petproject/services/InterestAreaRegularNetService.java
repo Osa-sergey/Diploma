@@ -43,11 +43,14 @@ public class InterestAreaRegularNetService {
             if(Objects.equals(tmp.getPrePoint(), area.get(area.size() - 1).getPointId())) {
                 area.add(tmp);
             } else {
+                area.add(area.get(0));
                 res.add(area);
                 area = new ArrayList<>();
                 area.add(tmp);
             }
         }
+        //нужно, чтобы можно было легко обойти все ребра
+        area.add(area.get(0));
         res.add(area);
         return res;
     }

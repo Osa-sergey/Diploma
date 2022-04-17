@@ -66,12 +66,12 @@ public class InterestAreaRegularNetFillerService {
         double width = DistHelper.getDist(boundingBox.getFirst(), rightTop);
         int heightPointNumber = (int) Math.floor(height / step);
         int widthPointNumber = (int) Math.floor(width / step);
-        double starLat = boundingBox.getFirst().getLat() - 1. / 2 * (height - heightPointNumber * step); // сдвиг на половину остатка от деления
-        double starLon = boundingBox.getFirst().getLon() + 1. / 2 * (width - widthPointNumber * step);
+        double starLat = boundingBox.getFirst().getLat();
+        double starLon = boundingBox.getFirst().getLon();
         double latStep = (boundingBox.getFirst().getLat() - leftBottom.getLat()) * step / height;
         double lonStep = (rightTop.getLon() - boundingBox.getFirst().getLon()) * step / width;
-        for(int i = 0; i < heightPointNumber; i++) {
-            for(int j = 0; j < widthPointNumber; j++) {
+        for(int i = 0; i <= heightPointNumber; i++) {
+            for(int j = 0; j <= widthPointNumber; j++) {
                 Coord point = new Coord(starLat - i * latStep, starLon + j * lonStep);
                 points.add(point);
             }
