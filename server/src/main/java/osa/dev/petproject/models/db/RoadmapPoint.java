@@ -22,12 +22,6 @@ public class RoadmapPoint {
     @Column(name = "neib_id")
     private Long neibPointId;
 
-    @Column(name = "lat")
-    private Double lat;
-
-    @Column(name = "lon")
-    private Double lon;
-
     @Column(name = "dist")
     private Double dist;
 }

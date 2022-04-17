@@ -6,9 +6,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import osa.dev.petproject.dto.in.NewPostRequestDTO;
+import osa.dev.petproject.exceptions.CheckException;
 import osa.dev.petproject.models.OptimizationStatus;
 import osa.dev.petproject.models.db.Optimization;
 import osa.dev.petproject.repository.OptimizationRepository;
+import osa.dev.petproject.services.PostCheckOptimizationService;
+import osa.dev.petproject.services.PreprocOptimizationService;
 
 import java.util.List;
 
@@ -17,10 +20,15 @@ import java.util.List;
 public class OptimizationListRestControllerV1 {
 
     private final OptimizationRepository optRepo;
-
+    private final PostCheckOptimizationService checkService;
+    private final PreprocOptimizationService preprocService;
     @Autowired
-    public OptimizationListRestControllerV1(OptimizationRepository optRepo){
+    public OptimizationListRestControllerV1(OptimizationRepository optRepo,
+                                            PostCheckOptimizationService checkService,
+                                            PreprocOptimizationService preprocService){
         this.optRepo = optRepo;
+        this.checkService = checkService;
+        this.preprocService = preprocService;
     }
 
     @GetMapping
@@ -40,8 +48,11 @@ public class OptimizationListRestControllerV1 {
     @PostMapping
     @PreAuthorize("hasAuthority('opt:write')")
     public ResponseEntity<?> addOptimizationWithRoadmapId(@RequestBody NewPostRequestDTO dto){
-        if(optRepo.findByRoadmapId(dto.getRoadmapId()).isPresent())
-            return new ResponseEntity<>("Optimization with this file id already exists", HttpStatus.CONFLICT);
+        try {
+            checkService.checkOptimizationPostContent(dto);
+        } catch (CheckException e) {
+            return new ResponseEntity<>(e.getMessage(), e.getStatus());
+        }
         try {
             Optimization opt = new Optimization();
             opt.setTitle(dto.getTitle());
@@ -51,6 +62,7 @@ public class OptimizationListRestControllerV1 {
             opt.setBsRad(dto.getBsRad());
             opt.setAsRad(dto.getAsRad());
             opt.setRoadmapId(dto.getRoadmapId());
+            preprocService.preproc(opt);
             optRepo.save(opt);
             return new ResponseEntity<>("Ok", HttpStatus.OK);
         } catch (Exception e) {

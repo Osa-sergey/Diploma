@@ -30,4 +30,7 @@ public class PreprocPoint {
     @Column(name = "point_id")
     private Long pointId;
 
+    @Column(name = "dist_from_hb")
+    private Double distFromHb;
+
 }
