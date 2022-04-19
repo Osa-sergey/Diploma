@@ -57,7 +57,7 @@ public class PreprocOptimizationService {
         roadmapRegularNetService.createRegularNet(backbone, adjList, roadmapId);
         areaRegularNetService.createRegularNet(roadmapId);
         ArrayList<PreprocPoint> achievablePosPoints = achievablePosPointsService.getAchievablePosPoints(roadmapId);
-        maintenanceMatrixService.maintenanceMatrixCalculation(achievablePosPoints, opt);
+        maintenanceMatrixService.calculateMaintenanceMatrix(achievablePosPoints, opt);
     }
 
     private ArrayList<AdjListElement> getRoadmapAdjList(Integer roadmapId) {

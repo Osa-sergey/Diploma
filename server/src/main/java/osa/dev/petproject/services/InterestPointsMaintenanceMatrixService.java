@@ -30,7 +30,7 @@ public class InterestPointsMaintenanceMatrixService {
         this.maintenanceNumberRepository = maintenanceNumberRepository;
     }
 
-    public void maintenanceMatrixCalculation(ArrayList<PreprocPoint> achievablePosPoints,
+    public void calculateMaintenanceMatrix(ArrayList<PreprocPoint> achievablePosPoints,
                                              Optimization optimization) {
         ArrayList<PreprocPoint> interestPoints = preprocRepository.
                                           getPreprocPointByTypeAndRoadmapID(PreprocPointType.INTEREST_POINT, optimization.getRoadmapId());
