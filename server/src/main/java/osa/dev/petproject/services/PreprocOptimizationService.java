@@ -14,6 +14,7 @@ import osa.dev.petproject.repository.RoadmapPointRepository;
 import osa.dev.petproject.tools.Pair;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 @Service
 public class PreprocOptimizationService {
@@ -55,6 +56,7 @@ public class PreprocOptimizationService {
         //возвращает dist и path относительно порядка элементов в adjList
         Pair<ArrayList<Double>, ArrayList<Integer>> dijkstraRes = dijkstraService.dijkstraAlg(adjList, hbId);
         ArrayList<BackboneAdjListElement> backbone = backboneService.createBackbone(adjList, dijkstraRes);
+        cleanAdjListFromUnreachable(adjList, dijkstraRes);
         roadmapRegularNetService.createRegularNet(backbone, adjList, roadmapId);
         areaRegularNetService.createRegularNet(roadmapId);
         ArrayList<PreprocPoint> reachablePosPoints = reachabilityPosPointsService.getAchievablePosPoints(roadmapId);
@@ -75,5 +77,21 @@ public class PreprocOptimizationService {
             res.add(item);
         }
         return res;
+    }
+
+    private void cleanAdjListFromUnreachable(ArrayList<AdjListElement> adjList,
+                                             Pair<ArrayList<Double>, ArrayList<Integer>> dijkstraRes) {
+        Iterator<AdjListElement> adjListIterator = adjList.iterator();
+        Iterator<Double> distIterator = dijkstraRes.getFirst().iterator();
+        Iterator<Integer> pathIterator = dijkstraRes.getSecond().iterator();
+        while(adjListIterator.hasNext()) {
+            adjListIterator.next();
+            pathIterator.next();
+            if(distIterator.next() == Double.MAX_VALUE) {
+                distIterator.remove();
+                adjListIterator.remove();
+                pathIterator.remove();
+            }
+        }
     }
 }
