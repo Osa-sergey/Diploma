@@ -24,7 +24,7 @@ public class PreprocOptimizationService {
     private final BackboneService backboneService;
     private final RoadmapRegularNetService roadmapRegularNetService;
     private final InterestAreaRegularNetService areaRegularNetService;
-    private final SampleAchievablePosPointsService achievablePosPointsService;
+    private final ReachabilityPosPointsService reachabilityPosPointsService;
     private final InterestPointsMaintenanceMatrixService maintenanceMatrixService;
 
     @Autowired
@@ -34,7 +34,7 @@ public class PreprocOptimizationService {
                                       BackboneService backboneService,
                                       RoadmapRegularNetService roadmapRegularNetService,
                                       InterestAreaRegularNetService areaRegularNetService,
-                                      SampleAchievablePosPointsService achievablePosPointsService,
+                                      ReachabilityPosPointsService reachabilityPosPointsService,
                                       InterestPointsMaintenanceMatrixService maintenanceMatrixService) {
         this.roadmapPointRepository = roadmapPointRepository;
         this.inputPointRepository = inputPointRepository;
@@ -42,7 +42,7 @@ public class PreprocOptimizationService {
         this.backboneService = backboneService;
         this.roadmapRegularNetService = roadmapRegularNetService;
         this.areaRegularNetService = areaRegularNetService;
-        this.achievablePosPointsService = achievablePosPointsService;
+        this.reachabilityPosPointsService = reachabilityPosPointsService;
         this.maintenanceMatrixService = maintenanceMatrixService;
     }
 
@@ -50,14 +50,17 @@ public class PreprocOptimizationService {
         Integer roadmapId = opt.getRoadmapId();
         ArrayList<AdjListElement> adjList = getRoadmapAdjList(roadmapId);
         InputPoint hb = inputPointRepository.findByRoadmapIdAndType(roadmapId, InputPointType.HOME_BASE).get(0);
+        InputPoint hq = inputPointRepository.findByRoadmapIdAndType(roadmapId, InputPointType.HQ).get(0);
         Long hbId = hb.getPointId();
         //возвращает dist и path относительно порядка элементов в adjList
         Pair<ArrayList<Double>, ArrayList<Integer>> dijkstraRes = dijkstraService.dijkstraAlg(adjList, hbId);
         ArrayList<BackboneAdjListElement> backbone = backboneService.createBackbone(adjList, dijkstraRes);
         roadmapRegularNetService.createRegularNet(backbone, adjList, roadmapId);
         areaRegularNetService.createRegularNet(roadmapId);
-        ArrayList<PreprocPoint> achievablePosPoints = achievablePosPointsService.getAchievablePosPoints(roadmapId);
-        maintenanceMatrixService.calculateMaintenanceMatrix(achievablePosPoints, opt);
+        ArrayList<PreprocPoint> reachablePosPoints = reachabilityPosPointsService.getAchievablePosPoints(roadmapId);
+        maintenanceMatrixService.calculateMaintenanceMatrix(reachablePosPoints, opt);
+        reachabilityPosPointsService.calculateBSReachabilityMatrix(reachablePosPoints, opt);
+        reachabilityPosPointsService.calculateHQReachabilityVector(reachablePosPoints, hq, opt);
     }
 
     private ArrayList<AdjListElement> getRoadmapAdjList(Integer roadmapId) {

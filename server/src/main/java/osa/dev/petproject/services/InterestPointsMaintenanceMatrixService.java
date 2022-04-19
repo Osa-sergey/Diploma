@@ -30,11 +30,11 @@ public class InterestPointsMaintenanceMatrixService {
         this.maintenanceNumberRepository = maintenanceNumberRepository;
     }
 
-    public void calculateMaintenanceMatrix(ArrayList<PreprocPoint> achievablePosPoints,
+    public void calculateMaintenanceMatrix(ArrayList<PreprocPoint> reachablePosPoints,
                                              Optimization optimization) {
         ArrayList<PreprocPoint> interestPoints = preprocRepository.
                                           getPreprocPointByTypeAndRoadmapID(PreprocPointType.INTEREST_POINT, optimization.getRoadmapId());
-        for (PreprocPoint posPoint: achievablePosPoints) {
+        for (PreprocPoint posPoint: reachablePosPoints) {
             int counter = 0;
             for (PreprocPoint interestPoint: interestPoints) {
                 Coord posPointCoord = new Coord(posPoint.getLat(), posPoint.getLon());
