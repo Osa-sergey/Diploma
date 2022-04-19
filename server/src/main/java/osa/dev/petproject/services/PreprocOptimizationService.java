@@ -7,6 +7,7 @@ import osa.dev.petproject.models.BackboneAdjListElement;
 import osa.dev.petproject.models.InputPointType;
 import osa.dev.petproject.models.db.InputPoint;
 import osa.dev.petproject.models.db.Optimization;
+import osa.dev.petproject.models.db.PreprocPoint;
 import osa.dev.petproject.models.db.RoadmapPoint;
 import osa.dev.petproject.repository.InputPointRepository;
 import osa.dev.petproject.repository.RoadmapPointRepository;
@@ -23,6 +24,8 @@ public class PreprocOptimizationService {
     private final BackboneService backboneService;
     private final RoadmapRegularNetService roadmapRegularNetService;
     private final InterestAreaRegularNetService areaRegularNetService;
+    private final SampleAchievablePosPointsService achievablePosPointsService;
+    private final InterestPointsMaintenanceMatrixService maintenanceMatrixService;
 
     @Autowired
     public PreprocOptimizationService(RoadmapPointRepository roadmapPointRepository,
@@ -30,13 +33,17 @@ public class PreprocOptimizationService {
                                       DijkstraService dijkstraService,
                                       BackboneService backboneService,
                                       RoadmapRegularNetService roadmapRegularNetService,
-                                      InterestAreaRegularNetService areaRegularNetService) {
+                                      InterestAreaRegularNetService areaRegularNetService,
+                                      SampleAchievablePosPointsService achievablePosPointsService,
+                                      InterestPointsMaintenanceMatrixService maintenanceMatrixService) {
         this.roadmapPointRepository = roadmapPointRepository;
         this.inputPointRepository = inputPointRepository;
         this.dijkstraService = dijkstraService;
         this.backboneService = backboneService;
         this.roadmapRegularNetService = roadmapRegularNetService;
         this.areaRegularNetService = areaRegularNetService;
+        this.achievablePosPointsService = achievablePosPointsService;
+        this.maintenanceMatrixService = maintenanceMatrixService;
     }
 
     public void preproc(Optimization opt) {
@@ -49,6 +56,8 @@ public class PreprocOptimizationService {
         ArrayList<BackboneAdjListElement> backbone = backboneService.createBackbone(adjList, dijkstraRes);
         roadmapRegularNetService.createRegularNet(backbone, adjList, roadmapId);
         areaRegularNetService.createRegularNet(roadmapId);
+        ArrayList<PreprocPoint> achievablePosPoints = achievablePosPointsService.getAchievablePosPoints(roadmapId);
+        maintenanceMatrixService.maintenanceMatrixCalculation(achievablePosPoints, opt);
     }
 
     private ArrayList<AdjListElement> getRoadmapAdjList(Integer roadmapId) {
