@@ -6,13 +6,16 @@ import osa.dev.petproject.models.db.InputPoint;
 import osa.dev.petproject.tools.Pair;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 @Service
 public class IsPointInAreaService {
 
+    private final Random rnd = new Random();
+
     public boolean isBelonging(ArrayList<InputPoint> area, Coord point) {
         int count = 0;
-        Pair<Coord, Coord> ray = getRay(point);
+        Pair<Coord, Coord> ray = getRandomRay(point);
         for (int i = 0; i < area.size() - 1; i++) {
             Coord firstCoord = new Coord(area.get(i).getLat(), area.get(i).getLon());
             Coord secondCoord = new Coord(area.get(i+1).getLat(), area.get(i+1).getLon());
@@ -24,12 +27,15 @@ public class IsPointInAreaService {
         return count % 2 != 0;
     }
 
-    private Pair<Coord, Coord> getRay(Coord point) {
-        Coord nextPoint = new Coord();
-        double latDelta = 0.01;
-        nextPoint.setLat(point.getLat() + latDelta);
-        nextPoint.setLon(point.getLon());
-        return new Pair<>(point, nextPoint);
+    private Pair<Coord, Coord> getRandomRay(Coord point) {
+        Coord rndPoint = new Coord();
+        boolean sign = rnd.nextBoolean();
+        boolean sign1 = rnd.nextBoolean();
+        double latDelta = sign ? 0.001 + Math.random() : - 0.001 - Math.random();
+        double lonDelta = sign1 ? 0.001 + Math.random() : - 0.001 - Math.random();
+        rndPoint.setLat(point.getLat() + latDelta);
+        rndPoint.setLon(point.getLon() + lonDelta);
+        return new Pair<>(point, rndPoint);
     }
 
     public int isCrossing(Pair<Coord, Coord> ray, Pair<Coord, Coord> edge) {
@@ -45,7 +51,12 @@ public class IsPointInAreaService {
         double pX = ((x1*y2 - y1*x2)*(x3 - x4) - (x1 - x2)*(x3*y4 - y3*x4)) / denominator;
         double pY = ((x1*y2 - y1*x2)*(y3 - y4) - (y1 - y2)*(x3*y4 - y3*x4)) / denominator;
         //проверка принадлежности лучу
-        if(pX < x1) return 0;
+        double xDir = x2 - x1;
+        double yDir = y2 - y1;
+        if(xDir >= 0 && pX < x1) return 0;
+        if(xDir < 0 && pX > x1) return 0;
+        if(yDir >= 0 && pY < y1) return 0;
+        if(yDir < 0 && pY > y1) return 0;
         // проверка принадлежности отрезку
         if((pX >= x3 && pX <= x4 || pX >= x4 && pX <= x3)
                 && (pY >= y3 && pY <= y4 || pY >= y4 && pY <= y3)) {
