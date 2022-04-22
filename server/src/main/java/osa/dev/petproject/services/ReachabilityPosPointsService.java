@@ -32,14 +32,14 @@ public class ReachabilityPosPointsService {
         this.hqRepository = hqRepository;
     }
 
-    public ArrayList<PreprocPoint> getAchievablePosPoints(Integer roadmapId) {
+    public ArrayList<PreprocPoint> getReachablePosPoints(Integer roadmapId) {
         return preprocRepository.getPointsCloserThan(velocity*maxTime, roadmapId, PreprocPointType.POS_POINT);
     }
 
     public void calculateBSReachabilityMatrix(ArrayList<PreprocPoint> posPoints, Optimization optimization) {
         for (int i = 0; i < posPoints.size(); i++) {
+            Coord posPoint1Coord = new Coord(posPoints.get(i).getLat(), posPoints.get(i).getLon());
             for (int j = 0; j < posPoints.size(); j++) {
-                Coord posPoint1Coord = new Coord(posPoints.get(i).getLat(), posPoints.get(i).getLon());
                 Coord posPoint2Coord = new Coord(posPoints.get(j).getLat(), posPoints.get(j).getLon());
                 if(DistHelper.getDist(posPoint1Coord, posPoint2Coord) <= optimization.getBsRad()) {
                     ReachabilityBS reachability = new ReachabilityBS();

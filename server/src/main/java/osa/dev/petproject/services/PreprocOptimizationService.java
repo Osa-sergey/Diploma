@@ -59,7 +59,7 @@ public class PreprocOptimizationService {
         cleanAdjListFromUnreachable(adjList, dijkstraRes);
         roadmapRegularNetService.createRegularNet(backbone, adjList, roadmapId);
         areaRegularNetService.createRegularNet(roadmapId);
-        ArrayList<PreprocPoint> reachablePosPoints = reachabilityPosPointsService.getAchievablePosPoints(roadmapId);
+        ArrayList<PreprocPoint> reachablePosPoints = reachabilityPosPointsService.getReachablePosPoints(roadmapId);
         maintenanceMatrixService.calculateMaintenanceMatrix(reachablePosPoints, opt);
         reachabilityPosPointsService.calculateBSReachabilityMatrix(reachablePosPoints, opt);
         reachabilityPosPointsService.calculateHQReachabilityVector(reachablePosPoints, hq, opt);
