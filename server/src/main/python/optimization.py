@@ -1,8 +1,8 @@
+import math
 import sys
-import numpy as np
-from ortools.linear_solver import pywraplp
 from conf import *
 from db import *
+from solve_model import *
 
 
 def optimize(opt_id):
@@ -10,11 +10,12 @@ def optimize(opt_id):
     opt_info = get_optimization_info(opt_id, con)
     roadmap_id = opt_info[0][0]
     bs_number = opt_info[0][1]
-    get_maintenance_matrix(roadmap_id, con)
-    get_maintenance_matrix_number(roadmap_id, con)
-    get_reachability_bs(roadmap_id, con)
-    get_reachability_hq(roadmap_id, con)
+    maintenance_matrix = get_maintenance_matrix(roadmap_id, con)
+    maintenance_matrix_number = get_maintenance_matrix_number(roadmap_id, con)
+    reachability_bs = get_reachability_bs(roadmap_id, con)
+    reachability_hq = get_reachability_hq(roadmap_id, con)
     con.close()
+    solve(bs_number, maintenance_matrix, maintenance_matrix_number, reachability_bs, reachability_hq)
 
 
 def get_optimization_info(opt_id, con):
@@ -28,28 +29,49 @@ def get_maintenance_matrix(roadmap_id, con):
     res = execute_query_with_result(con,
                                     get_maintenance_matrix_query,
                                     (roadmap_id,))
-    print(res)
+    number_of_pos_points = res[0][0] - res[0][1]
+    number_of_interest_points = int(len(res) / number_of_pos_points)
+    array = np.empty((0, number_of_interest_points), int)
+    for i in range(number_of_pos_points):
+        arr = []
+        for j in range(number_of_interest_points):
+            arr.append(res[i * number_of_interest_points + j][2])
+        array = np.append(array, np.array([arr]), axis=0)
+    return array
 
 
 def get_maintenance_matrix_number(roadmap_id, con):
     res = execute_query_with_result(con,
                                     get_maintenance_matrix_number_query,
                                     (roadmap_id,))
-    print(res)
+    array = np.empty((0, 1), int)
+    for i in range(len(res)):
+        array = np.append(array, np.array([[res[i][1]]]), axis=0)
+    return array
 
 
 def get_reachability_bs(roadmap_id, con):
     res = execute_query_with_result(con,
                                     get_reachability_bs_query,
                                     (roadmap_id,))
-    print(res)
+    number_of_pos_points = int(math.sqrt(len(res)))
+    array = np.empty((0, number_of_pos_points), int)
+    for i in range(number_of_pos_points):
+        arr = []
+        for j in range(number_of_pos_points):
+            arr.append(res[i * number_of_pos_points + j][2])
+        array = np.append(array, np.array([arr]), axis=0)
+    return array
 
 
 def get_reachability_hq(roadmap_id, con):
     res = execute_query_with_result(con,
                                     get_reachability_hq_query,
                                     (roadmap_id,))
-    print(res)
+    array = np.empty((1, 0), int)
+    for i in range(len(res)):
+        array = np.append(array, np.array([[res[i][1]]]), axis=1)
+    return array
 
 
 def set_optimization_status(status, opt_id, con):
