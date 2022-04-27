@@ -107,7 +107,7 @@ public class OptimizationListRestControllerV1 {
                 res.append("'>\n").append("    <tag k='").append(point.getType())
                         .append("' v='true' />\n").append("  </node>\n");
             } else {
-                res.append("' /\n>");
+                res.append("' />\n");
             }
         }
         return res;
