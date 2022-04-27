@@ -16,6 +16,9 @@ import osa.dev.petproject.repository.PreprocRepository;
 import osa.dev.petproject.services.PostCheckOptimizationService;
 import osa.dev.petproject.services.PreprocOptimizationService;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
 
 @RestController
@@ -55,21 +58,6 @@ public class OptimizationListRestControllerV1 {
     @PostMapping
     @PreAuthorize("hasAuthority('opt:write')")
     public ResponseEntity<?> addOptimizationWithRoadmapId(@RequestBody NewPostRequestDTO dto){
-
-//        ProcessBuilder pb = new ProcessBuilder("D:\\Диплом\\код\\diploma-server\\server\\venv\\Scripts\\python.exe",
-//                                                "D:\\Диплом\\код\\diploma-server\\server\\src\\main\\python\\optimization.py",
-//                                                "15");
-//        try {
-//            Process p = pb.start();
-//            BufferedReader bfr = new BufferedReader(new InputStreamReader(p.getInputStream()));
-//            String line;
-//            while ((line = bfr.readLine()) != null) {
-//                System.out.println("Python Output: " + line);
-//            }
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-
         try {
             checkService.checkOptimizationPostContent(dto);
         } catch (CheckException e) {
@@ -85,25 +73,43 @@ public class OptimizationListRestControllerV1 {
             opt.setAsRad(dto.getAsRad());
             opt.setRoadmapId(dto.getRoadmapId());
             preprocService.preproc(opt);
-            printPreprocPoints(dto.getRoadmapId());
-            optRepo.save(opt);
-            return new ResponseEntity<>("Ok", HttpStatus.OK);
+            StringBuilder res = getPreprocPoints(dto.getRoadmapId());
+            opt = optRepo.save(opt);
+            res.append("//////////////OptRes//////////////");
+            ProcessBuilder pb = new ProcessBuilder("D:\\Диплом\\код\\diploma-server\\server\\venv\\Scripts\\python.exe",
+                                                    "D:\\Диплом\\код\\diploma-server\\server\\src\\main\\python\\optimization.py",
+                                                    opt.getId().toString());
+            try {
+                Process p = pb.start();
+                BufferedReader bfr = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                String line;
+                while ((line = bfr.readLine()) != null) {
+                    res.append(line).append("\n");
+                }
+                return new ResponseEntity<>(res.toString(), HttpStatus.OK);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         } catch (Exception e) {
             return new ResponseEntity<>("Incorrect data", HttpStatus.BAD_REQUEST);
         }
     }
 
-    private void printPreprocPoints(Integer roadmapId) {
+    private StringBuilder getPreprocPoints(Integer roadmapId) {
+        StringBuilder res = new StringBuilder();
         for (PreprocPoint point: preprocRepository.findAllByRoadmapID(roadmapId)) {
+            res
+                    .append("<node id='").append(point.getPointId())
+                    .append("' action='modify' version='1'")
+                    .append(" visible='true' lat='").append(point.getLat())
+                    .append("' lon='").append(point.getLon());
             if(point.getType() == PreprocPointType.INTEREST_POINT) {
-                System.out.println("<node id='" + point.getPointId() + "' action='modify' version='1'" +
-                        " visible='true' lat='" + point.getLat() + "' lon='" + point.getLon() + "'>\n" +
-                        "    <tag k='"+ point.getType() + "' v='true' />\n" +
-                        "  </node>");
+                res.append("'>\n").append("    <tag k='").append(point.getType())
+                        .append("' v='true' />\n").append("  </node>\n");
             } else {
-                System.out.println("<node id='" + point.getPointId() + "' action='modify' version='1'" +
-                        " visible='true' lat='" + point.getLat() + "' lon='" + point.getLon() + "' />");
+                res.append("' /\n>");
             }
         }
+        return res;
     }
 }
