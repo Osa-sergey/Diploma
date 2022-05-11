@@ -1,5 +1,6 @@
 package osa.dev.petproject.services;
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import osa.dev.petproject.models.AdjListElement;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 @Service
+@Log4j2
 public class PreprocOptimizationService {
 
     private final RoadmapPointRepository roadmapPointRepository;
@@ -53,16 +55,26 @@ public class PreprocOptimizationService {
         InputPoint hb = inputPointRepository.findByRoadmapIdAndType(roadmapId, InputPointType.HOME_BASE).get(0);
         InputPoint hq = inputPointRepository.findByRoadmapIdAndType(roadmapId, InputPointType.HQ).get(0);
         Long hbId = hb.getPointId();
+        log.info("Start dijkstra algorithm");
         //возвращает dist и path относительно порядка элементов в adjList
         Pair<ArrayList<Double>, ArrayList<Integer>> dijkstraRes = dijkstraService.dijkstraAlg(adjList, hbId);
+        log.info("End dijkstra algorithm. Number of vertexes: " + dijkstraRes.getFirst().size());
+        log.info("Start backbone creating");
         ArrayList<BackboneAdjListElement> backbone = backboneService.createBackbone(adjList, dijkstraRes);
+        log.info("End backbone creating. Number of vertexes: " + backbone.size());
         cleanAdjListFromUnreachable(adjList, dijkstraRes);
+        log.info("Start roadmap net creating");
         roadmapRegularNetService.createRegularNet(backbone, adjList, roadmapId);
+        log.info("Start interest areas net creating");
         areaRegularNetService.createRegularNet(roadmapId);
         ArrayList<PreprocPoint> reachablePosPoints = reachabilityPosPointsService.getReachablePosPoints(roadmapId);
+        log.info("Start maintenance matrix calculating");
         maintenanceMatrixService.calculateMaintenanceMatrix(reachablePosPoints, opt);
+        log.info("Start BS reachability matrix calculating");
         reachabilityPosPointsService.calculateBSReachabilityMatrix(reachablePosPoints, opt);
+        log.info("Start HQ reachability matrix calculating");
         reachabilityPosPointsService.calculateHQReachabilityVector(reachablePosPoints, hq, opt);
+        log.info("End preproc calculating");
     }
 
     private ArrayList<AdjListElement> getRoadmapAdjList(Integer roadmapId) {
