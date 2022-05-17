@@ -81,6 +81,7 @@ public class InterestAreaRegularNetFillerService {
 
     private void savePoints(ArrayList<Coord> coords, Integer roadmapId) {
         long pointId = (long) (firstId - preprocRepository.countByRoadmapID(roadmapId));
+        ArrayList<PreprocPoint> preprocPointList = new ArrayList<>();
         for (Coord coord : coords) {
             PreprocPoint preprocPoint = new PreprocPoint();
             preprocPoint.setRoadmapID(roadmapId);
@@ -88,8 +89,9 @@ public class InterestAreaRegularNetFillerService {
             preprocPoint.setLat(coord.getLat());
             preprocPoint.setLon(coord.getLon());
             preprocPoint.setPointId(pointId);
-            preprocRepository.save(preprocPoint);
+            preprocPointList.add(preprocPoint);
             pointId--;
         }
+        preprocRepository.saveAll(preprocPointList);
     }
 }

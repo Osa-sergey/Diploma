@@ -39,6 +39,7 @@ public class ReachabilityPosPointsService {
     public void calculateBSReachabilityMatrix(ArrayList<PreprocPoint> posPoints, Optimization optimization) {
         for (int i = 0; i < posPoints.size(); i++) {
             Coord posPoint1Coord = new Coord(posPoints.get(i).getLat(), posPoints.get(i).getLon());
+            ArrayList<ReachabilityBS> reachabilityBSList = new ArrayList<>();
             for (int j = 0; j < posPoints.size(); j++) {
                 Coord posPoint2Coord = new Coord(posPoints.get(j).getLat(), posPoints.get(j).getLon());
                 if(DistHelper.getDist(posPoint1Coord, posPoint2Coord) <= optimization.getBsRad()) {
@@ -47,16 +48,17 @@ public class ReachabilityPosPointsService {
                     reachability.setPosPointId2(posPoints.get(j).getPointId());
                     reachability.setRoadmapId(optimization.getRoadmapId());
                     reachability.setIsReachable(1);
-                    bsRepository.save(reachability);
+                    reachabilityBSList.add(reachability);
                 } else {
                     ReachabilityBS reachability = new ReachabilityBS();
                     reachability.setPosPointId1(posPoints.get(i).getPointId());
                     reachability.setPosPointId2(posPoints.get(j).getPointId());
                     reachability.setRoadmapId(optimization.getRoadmapId());
                     reachability.setIsReachable(0);
-                    bsRepository.save(reachability);
+                    reachabilityBSList.add(reachability);
                 }
             }
+            bsRepository.saveAll(reachabilityBSList);
         }
     }
 
@@ -64,6 +66,7 @@ public class ReachabilityPosPointsService {
                                               InputPoint hq,
                                               Optimization optimization) {
         Coord hqCoord = new Coord(hq.getLat(), hq.getLon());
+        ArrayList<ReachabilityHQ> reachabilityHQList = new ArrayList<>();
         for (PreprocPoint point: posPoints) {
             Coord pointCoord = new Coord(point.getLat(), point.getLon());
             if(DistHelper.getDist(hqCoord, pointCoord) <= optimization.getAsRad()){
@@ -71,14 +74,15 @@ public class ReachabilityPosPointsService {
                 reachability.setPosPointId(point.getPointId());
                 reachability.setRoadmapId(optimization.getRoadmapId());
                 reachability.setIsReachable(1);
-                hqRepository.save(reachability);
+                reachabilityHQList.add(reachability);
             } else {
                 ReachabilityHQ reachability = new ReachabilityHQ();
                 reachability.setPosPointId(point.getPointId());
                 reachability.setRoadmapId(optimization.getRoadmapId());
                 reachability.setIsReachable(0);
-                hqRepository.save(reachability);
+                reachabilityHQList.add(reachability);
             }
         }
+        hqRepository.saveAll(reachabilityHQList);
     }
 }

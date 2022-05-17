@@ -34,8 +34,10 @@ public class InterestPointsMaintenanceMatrixService {
                                              Optimization optimization) {
         ArrayList<PreprocPoint> interestPoints = preprocRepository.
                                           getPreprocPointByTypeAndRoadmapID(PreprocPointType.INTEREST_POINT, optimization.getRoadmapId());
+        ArrayList<MaintenanceNumber> maintenanceNumberList = new ArrayList<>();
         for (PreprocPoint posPoint: reachablePosPoints) {
             int counter = 0;
+            ArrayList<Maintenance> maintenanceList = new ArrayList<>();
             for (PreprocPoint interestPoint: interestPoints) {
                 Coord posPointCoord = new Coord(posPoint.getLat(), posPoint.getLon());
                 Coord interestPointCoord = new Coord(interestPoint.getLat(), interestPoint.getLon());
@@ -46,21 +48,23 @@ public class InterestPointsMaintenanceMatrixService {
                     maintenance.setPosPointId(posPoint.getPointId());
                     maintenance.setRoadmapId(optimization.getRoadmapId());
                     maintenance.setIsMaintenance(1);
-                    maintenanceRepository.save(maintenance);
+                    maintenanceList.add(maintenance);
                 } else {
                     Maintenance maintenance = new Maintenance();
                     maintenance.setInterestPointId(interestPoint.getPointId());
                     maintenance.setPosPointId(posPoint.getPointId());
                     maintenance.setRoadmapId(optimization.getRoadmapId());
                     maintenance.setIsMaintenance(0);
-                    maintenanceRepository.save(maintenance);
+                    maintenanceList.add(maintenance);
                 }
             }
+            maintenanceRepository.saveAll(maintenanceList);
             MaintenanceNumber number = new MaintenanceNumber();
             number.setPosPointId(posPoint.getPointId());
             number.setRoadmapId(optimization.getRoadmapId());
             number.setNumber(counter);
-            maintenanceNumberRepository.save(number);
+            maintenanceNumberList.add(number);
         }
+        maintenanceNumberRepository.saveAll(maintenanceNumberList);
     }
 }

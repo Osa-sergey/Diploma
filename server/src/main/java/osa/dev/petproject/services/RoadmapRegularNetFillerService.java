@@ -99,6 +99,7 @@ public class RoadmapRegularNetFillerService {
 
     public void savePoints(ArrayList<Pair<Double, Coord>> points, Integer roadmapId) {
         long pointId = (long) (firstId - preprocRepository.countByRoadmapID(roadmapId));
+        ArrayList<PreprocPoint> preprocPointList = new ArrayList<>();
         for (Pair<Double, Coord> point : points) {
             PreprocPoint preprocPoint = new PreprocPoint();
             preprocPoint.setRoadmapID(roadmapId);
@@ -107,8 +108,9 @@ public class RoadmapRegularNetFillerService {
             preprocPoint.setLon(point.getSecond().getLon());
             preprocPoint.setPointId(pointId);
             preprocPoint.setDistFromHb(point.getFirst());
-            preprocRepository.save(preprocPoint);
+            preprocPointList.add(preprocPoint);
             pointId--;
         }
+        preprocRepository.saveAll(preprocPointList);
     }
 }
