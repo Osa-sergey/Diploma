@@ -13,7 +13,12 @@ import java.util.Date;
 public class Optimization {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name = "optimizations_id_seq",
+                        sequenceName = "server_main.optimization_id_seq",
+                        allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,
+                    generator = "optimizations_id_seq")
+    @Column(name = "id", updatable = false)
     private Integer id;
 
     @Column(name = "user_id")

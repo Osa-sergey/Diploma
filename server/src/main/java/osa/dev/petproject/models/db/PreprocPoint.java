@@ -11,7 +11,12 @@ import javax.persistence.*;
 public class PreprocPoint {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name = "preproc_points_id_seq",
+                        sequenceName = "server_main.preproc_points_id_seq",
+                        allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,
+                    generator = "preproc_points_id_seq")
+    @Column(name = "id", updatable = false)
     private Long id;
 
     @Column(name = "roadmap_id")

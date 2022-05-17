@@ -10,7 +10,12 @@ import javax.persistence.*;
 public class RoadmapPointCoord {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name = "roadmap_point_coords_id_seq",
+                        sequenceName = "server_main.roadmap_point_coords_id_seq",
+                        allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,
+                    generator = "roadmap_point_coords_id_seq")
+    @Column(name = "id", updatable = false)
     private Long id;
 
     @Column(name = "point_id")

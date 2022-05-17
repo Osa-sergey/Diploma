@@ -10,7 +10,12 @@ import javax.persistence.*;
 public class Maintenance {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name = "maintenance_id_seq",
+                        sequenceName = "server_main.maintenance_id_seq",
+                        allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,
+                    generator = "maintenance_id_seq")
+    @Column(name = "id", updatable = false)
     private Long id;
 
     @Column(name = "interest_point_id")

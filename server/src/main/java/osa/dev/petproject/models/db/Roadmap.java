@@ -12,7 +12,12 @@ import java.util.Date;
 public class Roadmap {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name = "roadmaps_id_seq",
+                        sequenceName = "server_main.roadmaps_id_seq",
+                        allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,
+                    generator = "roadmaps_id_seq")
+    @Column(name = "id", updatable = false)
     private Integer id;
 
     @CreationTimestamp

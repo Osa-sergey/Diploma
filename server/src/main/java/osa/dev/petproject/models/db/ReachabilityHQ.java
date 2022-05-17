@@ -10,7 +10,12 @@ import javax.persistence.*;
 public class ReachabilityHQ {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name = "reachability_hq_id_seq",
+                        sequenceName = "server_main.reachability_hq_id_seq",
+                        allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,
+                    generator = "reachability_hq_id_seq")
+    @Column(name = "id", updatable = false)
     private Long id;
 
     @Column(name = "pos_point_id")
