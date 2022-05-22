@@ -14,6 +14,7 @@ def optimize(opt_id):
     maintenance_matrix_number = get_maintenance_matrix_number(roadmap_id, con)
     reachability_bs = get_reachability_bs(roadmap_id, con)
     reachability_hq = get_reachability_hq(roadmap_id, con)
+    solve(bs_number, maintenance_matrix, maintenance_matrix_number, reachability_bs, reachability_hq)
     con.close()
     solve(bs_number, maintenance_matrix, maintenance_matrix_number, reachability_bs, reachability_hq)
 
@@ -29,10 +30,13 @@ def get_maintenance_matrix(roadmap_id, con):
     res = execute_query_with_result(con,
                                     get_maintenance_matrix_query,
                                     (roadmap_id,))
-    number_of_pos_points = res[0][0] - res[0][1]
-    number_of_interest_points = int(len(res) / number_of_pos_points)
+    number_of_pos_points = execute_query_with_result(con,
+                                                     number_of_pos_points_query,
+                                                     (roadmap_id,))
+    len_pos_points = number_of_pos_points[0][0]
+    number_of_interest_points = int(len(res) / len_pos_points)
     array = np.empty((0, number_of_interest_points), int)
-    for i in range(number_of_pos_points):
+    for i in range(len_pos_points):
         arr = []
         for j in range(number_of_interest_points):
             arr.append(res[i * number_of_interest_points + j][2])

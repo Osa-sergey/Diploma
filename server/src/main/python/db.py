@@ -6,6 +6,8 @@ where roadmap_id = %s
 order by pos_point_id desc, interest_point_id desc
 """
 
+number_of_pos_points_query = """select count(*) from server_main.maintenance_number where roadmap_id = %s"""
+
 get_maintenance_matrix_number_query = """select pos_point_id, number from server_main.maintenance_number
 where roadmap_id = %s
 order by pos_point_id desc
