@@ -105,7 +105,7 @@ public class OptimizationListRestControllerV1 {
                     .append("' lon='").append(point.getLon());
             if(point.getType() == PreprocPointType.INTEREST_POINT) {
                 res.append("'>\n").append("    <tag k='").append(point.getType())
-                        .append("' v='true' />\n").append("  </node>\n");
+                        .append("' v='true' />\n").append("</node>\n");
             } else {
                 res.append("' />\n");
             }

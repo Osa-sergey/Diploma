@@ -27,6 +27,14 @@ get_optimization_info_query = """select roadmap_id, bs_number from server_main.o
 where id = %s
 """
 
+get_pos_points_coord_query = """select point_id, lat, lon from server_main.preproc_points
+where roadmap_id = %s and preproc_point_type = 'POS_POINT' and dist_from_hb <= %s
+order by point_id desc """
+
+get_interest_points_coord_query = """select point_id, lat, lon from server_main.preproc_points
+where roadmap_id = %s and preproc_point_type = 'INTEREST_POINT'
+order by point_id desc """
+
 set_optimization_status_query = """update server_main.optimizations SET (status) = (%s)
 where id = %s
 """
